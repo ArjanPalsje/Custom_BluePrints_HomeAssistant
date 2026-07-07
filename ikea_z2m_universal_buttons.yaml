@@ -3,333 +3,302 @@ blueprint:
   description: >
     Universele blueprint voor IKEA knoppen/remotes via Zigbee2MQTT.
 
-    Deze blueprint gebruikt een MQTT-device dropdown. Kies dus gewoon je
-    Zigbee2MQTT IKEA knop uit de lijst.
+    Deze blueprint gebruikt een MQTT-device dropdown. Kies je IKEA knop uit de lijst.
+    De opties zijn gegroepeerd per soort knop, omdat Home Assistant blueprint-velden
+    niet dynamisch kan verbergen of tonen op basis van het gekozen device.
 
-    Werkt voor veel IKEA knoppen/remotes, zoals TRADFRI, STYRBAR, RODRET,
+    Hold/vasthoud-acties worden herhaald in een loop. De loop stopt zodra de bijbehorende
+    release/stop-action binnenkomt, of zodra het ingestelde maximum aantal loops is bereikt.
+
+    Werkt voor veel IKEA Zigbee2MQTT knoppen/remotes, zoals RODRET, TRADFRI, STYRBAR,
     SOMRIG, SYMFONISK, open/close remotes en BILRESA/E2489 in Zigbee-modus.
 
-    Let op: sommige acties verschijnen in Home Assistant pas nadat je die
-    knopactie minimaal één keer hebt gebruikt.
+    Let op: Zigbee2MQTT/Home Assistant maakt sommige MQTT device triggers pas zichtbaar
+    nadat je die specifieke knopactie minimaal één keer hebt gebruikt.
 
   domain: automation
 
+  homeassistant:
+    min_version: "2024.6.0"
+
   input:
-    ikea_button:
-      name: IKEA Zigbee2MQTT knop
-      description: "Kies hier je IKEA knop uit de MQTT devices."
-      selector:
-        device:
-          filter:
-            - integration: mqtt
+    basis:
+      name: Basis
+      icon: mdi:remote
+      input:
+        ikea_button:
+          name: IKEA Zigbee2MQTT knop
+          description: "Kies hier je IKEA knop uit de MQTT devices."
+          selector:
+            device:
+              filter:
+                - integration: mqtt
 
-    action_any:
-      name: Elke knopactie
-      description: "Wordt uitgevoerd bij elke knopactie."
-      default: []
-      selector:
-        action: {}
+        hold_loop_delay_ms:
+          name: Delay tussen loops bij vasthouden
+          description: "Hoe snel de actie zich herhaalt zolang je de knop ingedrukt houdt."
+          default: 300
+          selector:
+            number:
+              min: 50
+              max: 2000
+              step: 50
+              mode: slider
+              unit_of_measurement: ms
 
-    action_on:
-      name: ON / boven / aan
-      description: "Action: on"
-      default: []
-      selector:
-        action: {}
+        hold_loop_max:
+          name: Maximum aantal loops
+          description: "Veiligheidslimiet. De loop stopt eerder zodra je de knop loslaat."
+          default: 40
+          selector:
+            number:
+              min: 1
+              max: 200
+              step: 1
+              mode: slider
 
-    action_off:
-      name: OFF / onder / uit
-      description: "Action: off"
-      default: []
-      selector:
-        action: {}
+        action_any:
+          name: Elke knopactie
+          description: "Wordt één keer uitgevoerd bij elke herkende knopactie. Handig voor logging."
+          default: []
+          selector:
+            action: {}
 
-    action_on_double:
-      name: ON dubbelklik
-      description: "Action: on_double"
-      default: []
-      selector:
-        action: {}
+    aan_uit:
+      name: Aan/uit en toggle
+      icon: mdi:power
+      collapsed: false
+      input:
+        action_power_on:
+          name: Aan / boven / ON
+          description: "Voor acties zoals: on"
+          default: []
+          selector:
+            action: {}
 
-    action_off_double:
-      name: OFF dubbelklik
-      description: "Action: off_double"
-      default: []
-      selector:
-        action: {}
+        action_power_off:
+          name: Uit / onder / OFF
+          description: "Voor acties zoals: off"
+          default: []
+          selector:
+            action: {}
 
-    action_toggle:
-      name: Toggle / middenknop
-      description: "Action: toggle"
-      default: []
-      selector:
-        action: {}
+        action_power_toggle:
+          name: Toggle / middenknop
+          description: "Voor acties zoals: toggle"
+          default: []
+          selector:
+            action: {}
 
-    action_toggle_hold:
-      name: Toggle lang ingedrukt
-      description: "Action: toggle_hold"
-      default: []
-      selector:
-        action: {}
+        action_power_on_double:
+          name: Aan dubbelklik
+          description: "Voor acties zoals: on_double"
+          default: []
+          selector:
+            action: {}
 
-    action_brightness_move_up:
-      name: Helderheid omhoog vasthouden
-      description: "Action: brightness_move_up"
-      default: []
-      selector:
-        action: {}
+        action_power_off_double:
+          name: Uit dubbelklik
+          description: "Voor acties zoals: off_double"
+          default: []
+          selector:
+            action: {}
 
-    action_brightness_move_down:
-      name: Helderheid omlaag vasthouden
-      description: "Action: brightness_move_down"
-      default: []
-      selector:
-        action: {}
+    dimmen_scrollen:
+      name: Dimmen / scrollwiel
+      icon: mdi:brightness-6
+      collapsed: false
+      input:
+        action_dim_up_tap:
+          name: Dimmen omhoog - klik/stap
+          description: "Voor acties zoals: brightness_step_up, brightness_up_click"
+          default: []
+          selector:
+            action: {}
 
-    action_brightness_stop:
-      name: Helderheid stoppen / losgelaten
-      description: "Action: brightness_stop"
-      default: []
-      selector:
-        action: {}
+        action_dim_down_tap:
+          name: Dimmen omlaag - klik/stap
+          description: "Voor acties zoals: brightness_step_down, brightness_down_click"
+          default: []
+          selector:
+            action: {}
 
-    action_brightness_step_up:
-      name: Helderheid stap omhoog
-      description: "Action: brightness_step_up"
-      default: []
-      selector:
-        action: {}
+        action_dim_up_hold_loop:
+          name: Dimmen omhoog - vasthouden/scrollen
+          description: "Wordt herhaald tot brightness_stop of brightness_up_release binnenkomt."
+          default: []
+          selector:
+            action: {}
 
-    action_brightness_step_down:
-      name: Helderheid stap omlaag
-      description: "Action: brightness_step_down"
-      default: []
-      selector:
-        action: {}
+        action_dim_down_hold_loop:
+          name: Dimmen omlaag - vasthouden/scrollen
+          description: "Wordt herhaald tot brightness_stop of brightness_down_release binnenkomt."
+          default: []
+          selector:
+            action: {}
 
-    action_brightness_move_to_level:
-      name: Helderheid naar niveau / scrollwaarde
-      description: "Action: brightness_move_to_level"
-      default: []
-      selector:
-        action: {}
+        action_dim_level:
+          name: Dimmen naar niveau / scrollwaarde
+          description: "Voor acties zoals: brightness_move_to_level"
+          default: []
+          selector:
+            action: {}
 
-    action_brightness_up_click:
-      name: Helderheid omhoog klik
-      description: "Action: brightness_up_click"
-      default: []
-      selector:
-        action: {}
+    pijlen:
+      name: Pijlen links/rechts
+      icon: mdi:arrow-left-right
+      collapsed: true
+      input:
+        action_left_tap:
+          name: Links klik
+          description: "Voor acties zoals: arrow_left_click"
+          default: []
+          selector:
+            action: {}
 
-    action_brightness_up_hold:
-      name: Helderheid omhoog lang ingedrukt
-      description: "Action: brightness_up_hold"
-      default: []
-      selector:
-        action: {}
+        action_right_tap:
+          name: Rechts klik
+          description: "Voor acties zoals: arrow_right_click"
+          default: []
+          selector:
+            action: {}
 
-    action_brightness_up_release:
-      name: Helderheid omhoog losgelaten
-      description: "Action: brightness_up_release"
-      default: []
-      selector:
-        action: {}
+        action_left_hold_loop:
+          name: Links vasthouden
+          description: "Wordt herhaald tot arrow_left_release binnenkomt."
+          default: []
+          selector:
+            action: {}
 
-    action_brightness_down_click:
-      name: Helderheid omlaag klik
-      description: "Action: brightness_down_click"
-      default: []
-      selector:
-        action: {}
+        action_right_hold_loop:
+          name: Rechts vasthouden
+          description: "Wordt herhaald tot arrow_right_release binnenkomt."
+          default: []
+          selector:
+            action: {}
 
-    action_brightness_down_hold:
-      name: Helderheid omlaag lang ingedrukt
-      description: "Action: brightness_down_hold"
-      default: []
-      selector:
-        action: {}
+    twee_knoppen:
+      name: Twee-knops acties
+      icon: mdi:dots-horizontal
+      collapsed: true
+      input:
+        action_button_1_tap:
+          name: Knop 1 kort
+          description: "Voor acties zoals: 1_short_release, dots_1_short_release"
+          default: []
+          selector:
+            action: {}
 
-    action_brightness_down_release:
-      name: Helderheid omlaag losgelaten
-      description: "Action: brightness_down_release"
-      default: []
-      selector:
-        action: {}
+        action_button_1_double:
+          name: Knop 1 dubbelklik
+          description: "Voor acties zoals: 1_double_press, dots_1_double_press"
+          default: []
+          selector:
+            action: {}
 
-    action_arrow_left_click:
-      name: Pijl links klik
-      description: "Action: arrow_left_click"
-      default: []
-      selector:
-        action: {}
+        action_button_1_hold_loop:
+          name: Knop 1 vasthouden
+          description: "Wordt herhaald tot 1_long_release of dots_1_long_release binnenkomt."
+          default: []
+          selector:
+            action: {}
 
-    action_arrow_left_hold:
-      name: Pijl links lang ingedrukt
-      description: "Action: arrow_left_hold"
-      default: []
-      selector:
-        action: {}
+        action_button_2_tap:
+          name: Knop 2 kort
+          description: "Voor acties zoals: 2_short_release, dots_2_short_release"
+          default: []
+          selector:
+            action: {}
 
-    action_arrow_left_release:
-      name: Pijl links losgelaten
-      description: "Action: arrow_left_release"
-      default: []
-      selector:
-        action: {}
+        action_button_2_double:
+          name: Knop 2 dubbelklik
+          description: "Voor acties zoals: 2_double_press, dots_2_double_press"
+          default: []
+          selector:
+            action: {}
 
-    action_arrow_right_click:
-      name: Pijl rechts klik
-      description: "Action: arrow_right_click"
-      default: []
-      selector:
-        action: {}
+        action_button_2_hold_loop:
+          name: Knop 2 vasthouden
+          description: "Wordt herhaald tot 2_long_release of dots_2_long_release binnenkomt."
+          default: []
+          selector:
+            action: {}
 
-    action_arrow_right_hold:
-      name: Pijl rechts lang ingedrukt
-      description: "Action: arrow_right_hold"
-      default: []
-      selector:
-        action: {}
+    media:
+      name: Media / SYMFONISK
+      icon: mdi:music
+      collapsed: true
+      input:
+        action_media_previous:
+          name: Vorige track
+          description: "Voor acties zoals: track_previous"
+          default: []
+          selector:
+            action: {}
 
-    action_arrow_right_release:
-      name: Pijl rechts losgelaten
-      description: "Action: arrow_right_release"
-      default: []
-      selector:
-        action: {}
+        action_media_next:
+          name: Volgende track
+          description: "Voor acties zoals: track_next"
+          default: []
+          selector:
+            action: {}
 
-    action_button_1_initial_press:
-      name: Knop 1 eerste druk
-      description: "Actions: 1_initial_press, dots_1_initial_press"
-      default: []
-      selector:
-        action: {}
+        action_volume_up:
+          name: Volume omhoog
+          description: "Voor acties zoals: volume_up"
+          default: []
+          selector:
+            action: {}
 
-    action_button_1_short_release:
-      name: Knop 1 kort losgelaten
-      description: "Actions: 1_short_release, dots_1_short_release"
-      default: []
-      selector:
-        action: {}
+        action_volume_down:
+          name: Volume omlaag
+          description: "Voor acties zoals: volume_down"
+          default: []
+          selector:
+            action: {}
 
-    action_button_1_long_press:
-      name: Knop 1 lang ingedrukt
-      description: "Actions: 1_long_press, dots_1_long_press"
-      default: []
-      selector:
-        action: {}
+        action_volume_up_hold:
+          name: Volume omhoog vasthouden
+          description: "Voor acties zoals: volume_up_hold. Geen loop, omdat Zigbee2MQTT hiervoor meestal geen release-action geeft."
+          default: []
+          selector:
+            action: {}
 
-    action_button_1_long_release:
-      name: Knop 1 lang losgelaten
-      description: "Actions: 1_long_release, dots_1_long_release"
-      default: []
-      selector:
-        action: {}
+        action_volume_down_hold:
+          name: Volume omlaag vasthouden
+          description: "Voor acties zoals: volume_down_hold. Geen loop, omdat Zigbee2MQTT hiervoor meestal geen release-action geeft."
+          default: []
+          selector:
+            action: {}
 
-    action_button_1_double_press:
-      name: Knop 1 dubbelklik
-      description: "Actions: 1_double_press, dots_1_double_press"
-      default: []
-      selector:
-        action: {}
+    open_close:
+      name: Open / close remote
+      icon: mdi:window-shutter
+      collapsed: true
+      input:
+        action_open:
+          name: Open
+          description: "Voor acties zoals: open"
+          default: []
+          selector:
+            action: {}
 
-    action_button_2_initial_press:
-      name: Knop 2 eerste druk
-      description: "Actions: 2_initial_press, dots_2_initial_press"
-      default: []
-      selector:
-        action: {}
+        action_close:
+          name: Close
+          description: "Voor acties zoals: close"
+          default: []
+          selector:
+            action: {}
 
-    action_button_2_short_release:
-      name: Knop 2 kort losgelaten
-      description: "Actions: 2_short_release, dots_2_short_release"
-      default: []
-      selector:
-        action: {}
+        action_stop:
+          name: Stop
+          description: "Voor acties zoals: stop"
+          default: []
+          selector:
+            action: {}
 
-    action_button_2_long_press:
-      name: Knop 2 lang ingedrukt
-      description: "Actions: 2_long_press, dots_2_long_press"
-      default: []
-      selector:
-        action: {}
-
-    action_button_2_long_release:
-      name: Knop 2 lang losgelaten
-      description: "Actions: 2_long_release, dots_2_long_release"
-      default: []
-      selector:
-        action: {}
-
-    action_button_2_double_press:
-      name: Knop 2 dubbelklik
-      description: "Actions: 2_double_press, dots_2_double_press"
-      default: []
-      selector:
-        action: {}
-
-    action_track_previous:
-      name: Vorige track / vorige scène
-      description: "Action: track_previous"
-      default: []
-      selector:
-        action: {}
-
-    action_track_next:
-      name: Volgende track / volgende scène
-      description: "Action: track_next"
-      default: []
-      selector:
-        action: {}
-
-    action_volume_up:
-      name: Volume omhoog
-      description: "Action: volume_up"
-      default: []
-      selector:
-        action: {}
-
-    action_volume_down:
-      name: Volume omlaag
-      description: "Action: volume_down"
-      default: []
-      selector:
-        action: {}
-
-    action_volume_up_hold:
-      name: Volume omhoog vasthouden
-      description: "Action: volume_up_hold"
-      default: []
-      selector:
-        action: {}
-
-    action_volume_down_hold:
-      name: Volume omlaag vasthouden
-      description: "Action: volume_down_hold"
-      default: []
-      selector:
-        action: {}
-
-    action_open:
-      name: Open
-      description: "Action: open"
-      default: []
-      selector:
-        action: {}
-
-    action_close:
-      name: Close
-      description: "Action: close"
-      default: []
-      selector:
-        action: {}
-
-    action_stop:
-      name: Stop
-      description: "Action: stop"
-      default: []
-      selector:
-        action: {}
+variables:
+  hold_loop_delay_ms: !input hold_loop_delay_ms
 
 triggers:
   - trigger: device
@@ -337,322 +306,224 @@ triggers:
     device_id: !input ikea_button
     type: action
     subtype: "on"
-    id: "on"
+    id: "power_on"
 
   - trigger: device
     domain: mqtt
     device_id: !input ikea_button
     type: action
     subtype: "off"
-    id: "off"
-
-  - trigger: device
-    domain: mqtt
-    device_id: !input ikea_button
-    type: action
-    subtype: "on_double"
-    id: "on_double"
-
-  - trigger: device
-    domain: mqtt
-    device_id: !input ikea_button
-    type: action
-    subtype: "off_double"
-    id: "off_double"
+    id: "power_off"
 
   - trigger: device
     domain: mqtt
     device_id: !input ikea_button
     type: action
     subtype: "toggle"
-    id: "toggle"
+    id: "power_toggle"
 
   - trigger: device
     domain: mqtt
     device_id: !input ikea_button
     type: action
-    subtype: "toggle_hold"
-    id: "toggle_hold"
+    subtype: "on_double"
+    id: "power_on_double"
 
   - trigger: device
     domain: mqtt
     device_id: !input ikea_button
     type: action
-    subtype: "brightness_move_up"
-    id: "brightness_move_up"
-
-  - trigger: device
-    domain: mqtt
-    device_id: !input ikea_button
-    type: action
-    subtype: "brightness_move_down"
-    id: "brightness_move_down"
-
-  - trigger: device
-    domain: mqtt
-    device_id: !input ikea_button
-    type: action
-    subtype: "brightness_stop"
-    id: "brightness_stop"
+    subtype: "off_double"
+    id: "power_off_double"
 
   - trigger: device
     domain: mqtt
     device_id: !input ikea_button
     type: action
     subtype: "brightness_step_up"
-    id: "brightness_step_up"
-
-  - trigger: device
-    domain: mqtt
-    device_id: !input ikea_button
-    type: action
-    subtype: "brightness_step_down"
-    id: "brightness_step_down"
-
-  - trigger: device
-    domain: mqtt
-    device_id: !input ikea_button
-    type: action
-    subtype: "brightness_move_to_level"
-    id: "brightness_move_to_level"
+    id: "dim_up_tap"
 
   - trigger: device
     domain: mqtt
     device_id: !input ikea_button
     type: action
     subtype: "brightness_up_click"
-    id: "brightness_up_click"
+    id: "dim_up_tap"
 
   - trigger: device
     domain: mqtt
     device_id: !input ikea_button
     type: action
-    subtype: "brightness_up_hold"
-    id: "brightness_up_hold"
-
-  - trigger: device
-    domain: mqtt
-    device_id: !input ikea_button
-    type: action
-    subtype: "brightness_up_release"
-    id: "brightness_up_release"
+    subtype: "brightness_step_down"
+    id: "dim_down_tap"
 
   - trigger: device
     domain: mqtt
     device_id: !input ikea_button
     type: action
     subtype: "brightness_down_click"
-    id: "brightness_down_click"
+    id: "dim_down_tap"
+
+  - trigger: device
+    domain: mqtt
+    device_id: !input ikea_button
+    type: action
+    subtype: "brightness_move_up"
+    id: "dim_up_hold"
+
+  - trigger: device
+    domain: mqtt
+    device_id: !input ikea_button
+    type: action
+    subtype: "brightness_up_hold"
+    id: "dim_up_hold"
+
+  - trigger: device
+    domain: mqtt
+    device_id: !input ikea_button
+    type: action
+    subtype: "brightness_move_down"
+    id: "dim_down_hold"
 
   - trigger: device
     domain: mqtt
     device_id: !input ikea_button
     type: action
     subtype: "brightness_down_hold"
-    id: "brightness_down_hold"
+    id: "dim_down_hold"
 
   - trigger: device
     domain: mqtt
     device_id: !input ikea_button
     type: action
-    subtype: "brightness_down_release"
-    id: "brightness_down_release"
+    subtype: "brightness_move_to_level"
+    id: "dim_level"
 
   - trigger: device
     domain: mqtt
     device_id: !input ikea_button
     type: action
     subtype: "arrow_left_click"
-    id: "arrow_left_click"
-
-  - trigger: device
-    domain: mqtt
-    device_id: !input ikea_button
-    type: action
-    subtype: "arrow_left_hold"
-    id: "arrow_left_hold"
-
-  - trigger: device
-    domain: mqtt
-    device_id: !input ikea_button
-    type: action
-    subtype: "arrow_left_release"
-    id: "arrow_left_release"
+    id: "left_tap"
 
   - trigger: device
     domain: mqtt
     device_id: !input ikea_button
     type: action
     subtype: "arrow_right_click"
-    id: "arrow_right_click"
+    id: "right_tap"
+
+  - trigger: device
+    domain: mqtt
+    device_id: !input ikea_button
+    type: action
+    subtype: "arrow_left_hold"
+    id: "left_hold"
 
   - trigger: device
     domain: mqtt
     device_id: !input ikea_button
     type: action
     subtype: "arrow_right_hold"
-    id: "arrow_right_hold"
-
-  - trigger: device
-    domain: mqtt
-    device_id: !input ikea_button
-    type: action
-    subtype: "arrow_right_release"
-    id: "arrow_right_release"
-
-  - trigger: device
-    domain: mqtt
-    device_id: !input ikea_button
-    type: action
-    subtype: "1_initial_press"
-    id: "button_1_initial_press"
-
-  - trigger: device
-    domain: mqtt
-    device_id: !input ikea_button
-    type: action
-    subtype: "dots_1_initial_press"
-    id: "button_1_initial_press"
+    id: "right_hold"
 
   - trigger: device
     domain: mqtt
     device_id: !input ikea_button
     type: action
     subtype: "1_short_release"
-    id: "button_1_short_release"
+    id: "button_1_tap"
 
   - trigger: device
     domain: mqtt
     device_id: !input ikea_button
     type: action
     subtype: "dots_1_short_release"
-    id: "button_1_short_release"
-
-  - trigger: device
-    domain: mqtt
-    device_id: !input ikea_button
-    type: action
-    subtype: "1_long_press"
-    id: "button_1_long_press"
-
-  - trigger: device
-    domain: mqtt
-    device_id: !input ikea_button
-    type: action
-    subtype: "dots_1_long_press"
-    id: "button_1_long_press"
-
-  - trigger: device
-    domain: mqtt
-    device_id: !input ikea_button
-    type: action
-    subtype: "1_long_release"
-    id: "button_1_long_release"
-
-  - trigger: device
-    domain: mqtt
-    device_id: !input ikea_button
-    type: action
-    subtype: "dots_1_long_release"
-    id: "button_1_long_release"
+    id: "button_1_tap"
 
   - trigger: device
     domain: mqtt
     device_id: !input ikea_button
     type: action
     subtype: "1_double_press"
-    id: "button_1_double_press"
+    id: "button_1_double"
 
   - trigger: device
     domain: mqtt
     device_id: !input ikea_button
     type: action
     subtype: "dots_1_double_press"
-    id: "button_1_double_press"
+    id: "button_1_double"
 
   - trigger: device
     domain: mqtt
     device_id: !input ikea_button
     type: action
-    subtype: "2_initial_press"
-    id: "button_2_initial_press"
+    subtype: "1_long_press"
+    id: "button_1_hold"
 
   - trigger: device
     domain: mqtt
     device_id: !input ikea_button
     type: action
-    subtype: "dots_2_initial_press"
-    id: "button_2_initial_press"
+    subtype: "dots_1_long_press"
+    id: "button_1_hold"
 
   - trigger: device
     domain: mqtt
     device_id: !input ikea_button
     type: action
     subtype: "2_short_release"
-    id: "button_2_short_release"
+    id: "button_2_tap"
 
   - trigger: device
     domain: mqtt
     device_id: !input ikea_button
     type: action
     subtype: "dots_2_short_release"
-    id: "button_2_short_release"
-
-  - trigger: device
-    domain: mqtt
-    device_id: !input ikea_button
-    type: action
-    subtype: "2_long_press"
-    id: "button_2_long_press"
-
-  - trigger: device
-    domain: mqtt
-    device_id: !input ikea_button
-    type: action
-    subtype: "dots_2_long_press"
-    id: "button_2_long_press"
-
-  - trigger: device
-    domain: mqtt
-    device_id: !input ikea_button
-    type: action
-    subtype: "2_long_release"
-    id: "button_2_long_release"
-
-  - trigger: device
-    domain: mqtt
-    device_id: !input ikea_button
-    type: action
-    subtype: "dots_2_long_release"
-    id: "button_2_long_release"
+    id: "button_2_tap"
 
   - trigger: device
     domain: mqtt
     device_id: !input ikea_button
     type: action
     subtype: "2_double_press"
-    id: "button_2_double_press"
+    id: "button_2_double"
 
   - trigger: device
     domain: mqtt
     device_id: !input ikea_button
     type: action
     subtype: "dots_2_double_press"
-    id: "button_2_double_press"
+    id: "button_2_double"
+
+  - trigger: device
+    domain: mqtt
+    device_id: !input ikea_button
+    type: action
+    subtype: "2_long_press"
+    id: "button_2_hold"
+
+  - trigger: device
+    domain: mqtt
+    device_id: !input ikea_button
+    type: action
+    subtype: "dots_2_long_press"
+    id: "button_2_hold"
 
   - trigger: device
     domain: mqtt
     device_id: !input ikea_button
     type: action
     subtype: "track_previous"
-    id: "track_previous"
+    id: "media_previous"
 
   - trigger: device
     domain: mqtt
     device_id: !input ikea_button
     type: action
     subtype: "track_next"
-    id: "track_next"
+    id: "media_next"
 
   - trigger: device
     domain: mqtt
@@ -715,183 +586,83 @@ actions:
   - choose:
       - conditions:
           - condition: trigger
-            id: "on"
-        sequence: !input action_on
+            id: "power_on"
+        sequence: !input action_power_on
 
       - conditions:
           - condition: trigger
-            id: "off"
-        sequence: !input action_off
+            id: "power_off"
+        sequence: !input action_power_off
 
       - conditions:
           - condition: trigger
-            id: "on_double"
-        sequence: !input action_on_double
+            id: "power_toggle"
+        sequence: !input action_power_toggle
 
       - conditions:
           - condition: trigger
-            id: "off_double"
-        sequence: !input action_off_double
+            id: "power_on_double"
+        sequence: !input action_power_on_double
 
       - conditions:
           - condition: trigger
-            id: "toggle"
-        sequence: !input action_toggle
+            id: "power_off_double"
+        sequence: !input action_power_off_double
 
       - conditions:
           - condition: trigger
-            id: "toggle_hold"
-        sequence: !input action_toggle_hold
+            id: "dim_up_tap"
+        sequence: !input action_dim_up_tap
 
       - conditions:
           - condition: trigger
-            id: "brightness_move_up"
-        sequence: !input action_brightness_move_up
+            id: "dim_down_tap"
+        sequence: !input action_dim_down_tap
 
       - conditions:
           - condition: trigger
-            id: "brightness_move_down"
-        sequence: !input action_brightness_move_down
+            id: "dim_level"
+        sequence: !input action_dim_level
 
       - conditions:
           - condition: trigger
-            id: "brightness_stop"
-        sequence: !input action_brightness_stop
+            id: "left_tap"
+        sequence: !input action_left_tap
 
       - conditions:
           - condition: trigger
-            id: "brightness_step_up"
-        sequence: !input action_brightness_step_up
+            id: "right_tap"
+        sequence: !input action_right_tap
 
       - conditions:
           - condition: trigger
-            id: "brightness_step_down"
-        sequence: !input action_brightness_step_down
+            id: "button_1_tap"
+        sequence: !input action_button_1_tap
 
       - conditions:
           - condition: trigger
-            id: "brightness_move_to_level"
-        sequence: !input action_brightness_move_to_level
+            id: "button_1_double"
+        sequence: !input action_button_1_double
 
       - conditions:
           - condition: trigger
-            id: "brightness_up_click"
-        sequence: !input action_brightness_up_click
+            id: "button_2_tap"
+        sequence: !input action_button_2_tap
 
       - conditions:
           - condition: trigger
-            id: "brightness_up_hold"
-        sequence: !input action_brightness_up_hold
+            id: "button_2_double"
+        sequence: !input action_button_2_double
 
       - conditions:
           - condition: trigger
-            id: "brightness_up_release"
-        sequence: !input action_brightness_up_release
+            id: "media_previous"
+        sequence: !input action_media_previous
 
       - conditions:
           - condition: trigger
-            id: "brightness_down_click"
-        sequence: !input action_brightness_down_click
-
-      - conditions:
-          - condition: trigger
-            id: "brightness_down_hold"
-        sequence: !input action_brightness_down_hold
-
-      - conditions:
-          - condition: trigger
-            id: "brightness_down_release"
-        sequence: !input action_brightness_down_release
-
-      - conditions:
-          - condition: trigger
-            id: "arrow_left_click"
-        sequence: !input action_arrow_left_click
-
-      - conditions:
-          - condition: trigger
-            id: "arrow_left_hold"
-        sequence: !input action_arrow_left_hold
-
-      - conditions:
-          - condition: trigger
-            id: "arrow_left_release"
-        sequence: !input action_arrow_left_release
-
-      - conditions:
-          - condition: trigger
-            id: "arrow_right_click"
-        sequence: !input action_arrow_right_click
-
-      - conditions:
-          - condition: trigger
-            id: "arrow_right_hold"
-        sequence: !input action_arrow_right_hold
-
-      - conditions:
-          - condition: trigger
-            id: "arrow_right_release"
-        sequence: !input action_arrow_right_release
-
-      - conditions:
-          - condition: trigger
-            id: "button_1_initial_press"
-        sequence: !input action_button_1_initial_press
-
-      - conditions:
-          - condition: trigger
-            id: "button_1_short_release"
-        sequence: !input action_button_1_short_release
-
-      - conditions:
-          - condition: trigger
-            id: "button_1_long_press"
-        sequence: !input action_button_1_long_press
-
-      - conditions:
-          - condition: trigger
-            id: "button_1_long_release"
-        sequence: !input action_button_1_long_release
-
-      - conditions:
-          - condition: trigger
-            id: "button_1_double_press"
-        sequence: !input action_button_1_double_press
-
-      - conditions:
-          - condition: trigger
-            id: "button_2_initial_press"
-        sequence: !input action_button_2_initial_press
-
-      - conditions:
-          - condition: trigger
-            id: "button_2_short_release"
-        sequence: !input action_button_2_short_release
-
-      - conditions:
-          - condition: trigger
-            id: "button_2_long_press"
-        sequence: !input action_button_2_long_press
-
-      - conditions:
-          - condition: trigger
-            id: "button_2_long_release"
-        sequence: !input action_button_2_long_release
-
-      - conditions:
-          - condition: trigger
-            id: "button_2_double_press"
-        sequence: !input action_button_2_double_press
-
-      - conditions:
-          - condition: trigger
-            id: "track_previous"
-        sequence: !input action_track_previous
-
-      - conditions:
-          - condition: trigger
-            id: "track_next"
-        sequence: !input action_track_next
+            id: "media_next"
+        sequence: !input action_media_next
 
       - conditions:
           - condition: trigger
@@ -928,6 +699,203 @@ actions:
             id: "stop"
         sequence: !input action_stop
 
-mode: parallel
-max: 20
+      - conditions:
+          - condition: trigger
+            id: "dim_up_hold"
+        sequence:
+          - repeat:
+              count: !input hold_loop_max
+              sequence:
+                - choose:
+                    - conditions:
+                        - condition: template
+                          value_template: "{{ true }}"
+                      sequence: !input action_dim_up_hold_loop
+
+                - wait_for_trigger:
+                    - trigger: device
+                      domain: mqtt
+                      device_id: !input ikea_button
+                      type: action
+                      subtype: "brightness_stop"
+
+                    - trigger: device
+                      domain: mqtt
+                      device_id: !input ikea_button
+                      type: action
+                      subtype: "brightness_up_release"
+                  timeout:
+                    milliseconds: "{{ hold_loop_delay_ms | int }}"
+                  continue_on_timeout: true
+
+                - if:
+                    - condition: template
+                      value_template: "{{ wait.trigger is not none }}"
+                  then:
+                    - stop: "Knop losgelaten"
+
+      - conditions:
+          - condition: trigger
+            id: "dim_down_hold"
+        sequence:
+          - repeat:
+              count: !input hold_loop_max
+              sequence:
+                - choose:
+                    - conditions:
+                        - condition: template
+                          value_template: "{{ true }}"
+                      sequence: !input action_dim_down_hold_loop
+
+                - wait_for_trigger:
+                    - trigger: device
+                      domain: mqtt
+                      device_id: !input ikea_button
+                      type: action
+                      subtype: "brightness_stop"
+
+                    - trigger: device
+                      domain: mqtt
+                      device_id: !input ikea_button
+                      type: action
+                      subtype: "brightness_down_release"
+                  timeout:
+                    milliseconds: "{{ hold_loop_delay_ms | int }}"
+                  continue_on_timeout: true
+
+                - if:
+                    - condition: template
+                      value_template: "{{ wait.trigger is not none }}"
+                  then:
+                    - stop: "Knop losgelaten"
+
+      - conditions:
+          - condition: trigger
+            id: "left_hold"
+        sequence:
+          - repeat:
+              count: !input hold_loop_max
+              sequence:
+                - choose:
+                    - conditions:
+                        - condition: template
+                          value_template: "{{ true }}"
+                      sequence: !input action_left_hold_loop
+
+                - wait_for_trigger:
+                    - trigger: device
+                      domain: mqtt
+                      device_id: !input ikea_button
+                      type: action
+                      subtype: "arrow_left_release"
+                  timeout:
+                    milliseconds: "{{ hold_loop_delay_ms | int }}"
+                  continue_on_timeout: true
+
+                - if:
+                    - condition: template
+                      value_template: "{{ wait.trigger is not none }}"
+                  then:
+                    - stop: "Knop losgelaten"
+
+      - conditions:
+          - condition: trigger
+            id: "right_hold"
+        sequence:
+          - repeat:
+              count: !input hold_loop_max
+              sequence:
+                - choose:
+                    - conditions:
+                        - condition: template
+                          value_template: "{{ true }}"
+                      sequence: !input action_right_hold_loop
+
+                - wait_for_trigger:
+                    - trigger: device
+                      domain: mqtt
+                      device_id: !input ikea_button
+                      type: action
+                      subtype: "arrow_right_release"
+                  timeout:
+                    milliseconds: "{{ hold_loop_delay_ms | int }}"
+                  continue_on_timeout: true
+
+                - if:
+                    - condition: template
+                      value_template: "{{ wait.trigger is not none }}"
+                  then:
+                    - stop: "Knop losgelaten"
+
+      - conditions:
+          - condition: trigger
+            id: "button_1_hold"
+        sequence:
+          - repeat:
+              count: !input hold_loop_max
+              sequence:
+                - choose:
+                    - conditions:
+                        - condition: template
+                          value_template: "{{ true }}"
+                      sequence: !input action_button_1_hold_loop
+
+                - wait_for_trigger:
+                    - trigger: device
+                      domain: mqtt
+                      device_id: !input ikea_button
+                      type: action
+                      subtype: "1_long_release"
+
+                    - trigger: device
+                      domain: mqtt
+                      device_id: !input ikea_button
+                      type: action
+                      subtype: "dots_1_long_release"
+                  timeout:
+                    milliseconds: "{{ hold_loop_delay_ms | int }}"
+                  continue_on_timeout: true
+
+                - if:
+                    - condition: template
+                      value_template: "{{ wait.trigger is not none }}"
+                  then:
+                    - stop: "Knop losgelaten"
+
+      - conditions:
+          - condition: trigger
+            id: "button_2_hold"
+        sequence:
+          - repeat:
+              count: !input hold_loop_max
+              sequence:
+                - choose:
+                    - conditions:
+                        - condition: template
+                          value_template: "{{ true }}"
+                      sequence: !input action_button_2_hold_loop
+
+                - wait_for_trigger:
+                    - trigger: device
+                      domain: mqtt
+                      device_id: !input ikea_button
+                      type: action
+                      subtype: "2_long_release"
+
+                    - trigger: device
+                      domain: mqtt
+                      device_id: !input ikea_button
+                      type: action
+                      subtype: "dots_2_long_release"
+                  timeout:
+                    milliseconds: "{{ hold_loop_delay_ms | int }}"
+                  continue_on_timeout: true
+
+                - if:
+                    - condition: template
+                      value_template: "{{ wait.trigger is not none }}"
+                  then:
+                    - stop: "Knop losgelaten"
+
+mode: restart
 max_exceeded: silent
