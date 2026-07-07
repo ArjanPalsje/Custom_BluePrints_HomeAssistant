@@ -8,13 +8,6 @@ blueprint:
 
     Gebruik per fysieke knop één automation met deze blueprint.
     Vul als topic in: zigbee2mqtt/FRIENDLY_NAME
-    Voorbeeld: zigbee2mqtt/ikea_knop_woonkamer
-
-    Beschikbare variabelen in je acties:
-    - z2m_action: de ruwe action string
-    - z2m_payload: volledige MQTT payload als object
-    - z2m_brightness: brightness waarde indien aanwezig
-    - z2m_delta: action_brightness_delta indien aanwezig
 
   domain: automation
 
@@ -30,308 +23,308 @@ blueprint:
 
     action_any:
       name: Elke knopactie
-      description: Wordt uitgevoerd bij elke ontvangen action. Handig voor logging of debugging.
+      description: "Wordt uitgevoerd bij elke ontvangen action. Handig voor logging of debugging."
       default: []
       selector:
         action: {}
 
     action_on:
       name: ON / boven / aan
-      description: Raw action: on
+      description: "Raw action: on"
       default: []
       selector:
         action: {}
 
     action_off:
       name: OFF / onder / uit
-      description: Raw action: off
+      description: "Raw action: off"
       default: []
       selector:
         action: {}
 
     action_on_double:
       name: ON dubbelklik
-      description: Raw action: on_double
+      description: "Raw action: on_double"
       default: []
       selector:
         action: {}
 
     action_off_double:
       name: OFF dubbelklik
-      description: Raw action: off_double
+      description: "Raw action: off_double"
       default: []
       selector:
         action: {}
 
     action_toggle:
       name: Toggle / middenknop / play-pause
-      description: Raw action: toggle
+      description: "Raw action: toggle"
       default: []
       selector:
         action: {}
 
     action_toggle_hold:
       name: Toggle lang ingedrukt
-      description: Raw action: toggle_hold
+      description: "Raw action: toggle_hold"
       default: []
       selector:
         action: {}
 
     action_brightness_move_up:
       name: Helderheid omhoog vasthouden
-      description: Raw action: brightness_move_up
+      description: "Raw action: brightness_move_up"
       default: []
       selector:
         action: {}
 
     action_brightness_move_down:
       name: Helderheid omlaag vasthouden
-      description: Raw action: brightness_move_down
+      description: "Raw action: brightness_move_down"
       default: []
       selector:
         action: {}
 
     action_brightness_stop:
       name: Helderheid stoppen / losgelaten
-      description: Raw action: brightness_stop
+      description: "Raw action: brightness_stop"
       default: []
       selector:
         action: {}
 
     action_brightness_step_up:
       name: Helderheid stap omhoog
-      description: Raw action: brightness_step_up
+      description: "Raw action: brightness_step_up"
       default: []
       selector:
         action: {}
 
     action_brightness_step_down:
       name: Helderheid stap omlaag
-      description: Raw action: brightness_step_down
+      description: "Raw action: brightness_step_down"
       default: []
       selector:
         action: {}
 
     action_brightness_move_to_level:
       name: Helderheid naar niveau / scrollwaarde
-      description: Raw action: brightness_move_to_level
+      description: "Raw action: brightness_move_to_level"
       default: []
       selector:
         action: {}
 
     action_brightness_up_click:
       name: Helderheid omhoog klik
-      description: Raw action: brightness_up_click
+      description: "Raw action: brightness_up_click"
       default: []
       selector:
         action: {}
 
     action_brightness_up_hold:
       name: Helderheid omhoog lang ingedrukt
-      description: Raw action: brightness_up_hold
+      description: "Raw action: brightness_up_hold"
       default: []
       selector:
         action: {}
 
     action_brightness_up_release:
       name: Helderheid omhoog losgelaten
-      description: Raw action: brightness_up_release
+      description: "Raw action: brightness_up_release"
       default: []
       selector:
         action: {}
 
     action_brightness_down_click:
       name: Helderheid omlaag klik
-      description: Raw action: brightness_down_click
+      description: "Raw action: brightness_down_click"
       default: []
       selector:
         action: {}
 
     action_brightness_down_hold:
       name: Helderheid omlaag lang ingedrukt
-      description: Raw action: brightness_down_hold
+      description: "Raw action: brightness_down_hold"
       default: []
       selector:
         action: {}
 
     action_brightness_down_release:
       name: Helderheid omlaag losgelaten
-      description: Raw action: brightness_down_release
+      description: "Raw action: brightness_down_release"
       default: []
       selector:
         action: {}
 
     action_arrow_left_click:
       name: Pijl links klik
-      description: Raw action: arrow_left_click
+      description: "Raw action: arrow_left_click"
       default: []
       selector:
         action: {}
 
     action_arrow_left_hold:
       name: Pijl links lang ingedrukt
-      description: Raw action: arrow_left_hold
+      description: "Raw action: arrow_left_hold"
       default: []
       selector:
         action: {}
 
     action_arrow_left_release:
       name: Pijl links losgelaten
-      description: Raw action: arrow_left_release
+      description: "Raw action: arrow_left_release"
       default: []
       selector:
         action: {}
 
     action_arrow_right_click:
       name: Pijl rechts klik
-      description: Raw action: arrow_right_click
+      description: "Raw action: arrow_right_click"
       default: []
       selector:
         action: {}
 
     action_arrow_right_hold:
       name: Pijl rechts lang ingedrukt
-      description: Raw action: arrow_right_hold
+      description: "Raw action: arrow_right_hold"
       default: []
       selector:
         action: {}
 
     action_arrow_right_release:
       name: Pijl rechts losgelaten
-      description: Raw action: arrow_right_release
+      description: "Raw action: arrow_right_release"
       default: []
       selector:
         action: {}
 
     action_button_1_initial_press:
       name: Knop 1 eerste druk
-      description: Raw actions: 1_initial_press, dots_1_initial_press
+      description: "Raw actions: 1_initial_press, dots_1_initial_press"
       default: []
       selector:
         action: {}
 
     action_button_1_short_release:
       name: Knop 1 kort losgelaten
-      description: Raw actions: 1_short_release, dots_1_short_release
+      description: "Raw actions: 1_short_release, dots_1_short_release"
       default: []
       selector:
         action: {}
 
     action_button_1_long_press:
       name: Knop 1 lang ingedrukt
-      description: Raw actions: 1_long_press, dots_1_long_press
+      description: "Raw actions: 1_long_press, dots_1_long_press"
       default: []
       selector:
         action: {}
 
     action_button_1_long_release:
       name: Knop 1 lang losgelaten
-      description: Raw actions: 1_long_release, dots_1_long_release
+      description: "Raw actions: 1_long_release, dots_1_long_release"
       default: []
       selector:
         action: {}
 
     action_button_1_double_press:
       name: Knop 1 dubbelklik
-      description: Raw actions: 1_double_press, dots_1_double_press
+      description: "Raw actions: 1_double_press, dots_1_double_press"
       default: []
       selector:
         action: {}
 
     action_button_2_initial_press:
       name: Knop 2 eerste druk
-      description: Raw actions: 2_initial_press, dots_2_initial_press
+      description: "Raw actions: 2_initial_press, dots_2_initial_press"
       default: []
       selector:
         action: {}
 
     action_button_2_short_release:
       name: Knop 2 kort losgelaten
-      description: Raw actions: 2_short_release, dots_2_short_release
+      description: "Raw actions: 2_short_release, dots_2_short_release"
       default: []
       selector:
         action: {}
 
     action_button_2_long_press:
       name: Knop 2 lang ingedrukt
-      description: Raw actions: 2_long_press, dots_2_long_press
+      description: "Raw actions: 2_long_press, dots_2_long_press"
       default: []
       selector:
         action: {}
 
     action_button_2_long_release:
       name: Knop 2 lang losgelaten
-      description: Raw actions: 2_long_release, dots_2_long_release
+      description: "Raw actions: 2_long_release, dots_2_long_release"
       default: []
       selector:
         action: {}
 
     action_button_2_double_press:
       name: Knop 2 dubbelklik
-      description: Raw actions: 2_double_press, dots_2_double_press
+      description: "Raw actions: 2_double_press, dots_2_double_press"
       default: []
       selector:
         action: {}
 
     action_track_previous:
       name: Vorige track / vorige scène
-      description: Raw action: track_previous
+      description: "Raw action: track_previous"
       default: []
       selector:
         action: {}
 
     action_track_next:
       name: Volgende track / volgende scène
-      description: Raw action: track_next
+      description: "Raw action: track_next"
       default: []
       selector:
         action: {}
 
     action_volume_up:
       name: Volume omhoog
-      description: Raw action: volume_up
+      description: "Raw action: volume_up"
       default: []
       selector:
         action: {}
 
     action_volume_down:
       name: Volume omlaag
-      description: Raw action: volume_down
+      description: "Raw action: volume_down"
       default: []
       selector:
         action: {}
 
     action_volume_up_hold:
       name: Volume omhoog vasthouden
-      description: Raw action: volume_up_hold
+      description: "Raw action: volume_up_hold"
       default: []
       selector:
         action: {}
 
     action_volume_down_hold:
       name: Volume omlaag vasthouden
-      description: Raw action: volume_down_hold
+      description: "Raw action: volume_down_hold"
       default: []
       selector:
         action: {}
 
     action_open:
       name: Open
-      description: Raw action: open
+      description: "Raw action: open"
       default: []
       selector:
         action: {}
 
     action_close:
       name: Close
-      description: Raw action: close
+      description: "Raw action: close"
       default: []
       selector:
         action: {}
 
     action_stop:
       name: Stop
-      description: Raw action: stop
+      description: "Raw action: stop"
       default: []
       selector:
         action: {}
