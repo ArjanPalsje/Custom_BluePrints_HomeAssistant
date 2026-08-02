@@ -1,0 +1,176 @@
+blueprint:
+  name: Aqara Wireless Mini Switch T1 (WB-R02D / WXKG13LM) - Zigbee2MQTT
+  description: >
+    Volledige bediening voor de Aqara Wireless Mini Switch T1, model WB-R02D
+    (Zigbee-model WXKG13LM), gekoppeld via Zigbee2MQTT.
+
+    Ondersteunde acties:
+    - enkel klikken
+    - dubbel klikken
+    - drie keer klikken
+    - vier keer klikken
+    - vijf keer klikken
+    - ingedrukt houden
+    - loslaten na ingedrukt houden
+    - zes of meer keer klikken ('many')
+
+    De meervoudige klikacties zijn afhankelijk van wat de knop/firmware daadwerkelijk
+    naar Zigbee2MQTT verstuurt. Druk iedere gewenste actie minimaal één keer in nadat
+    het apparaat is gekoppeld, zodat Zigbee2MQTT de bijbehorende MQTT-device-trigger
+    in Home Assistant kan ontdekken.
+  domain: automation
+  homeassistant:
+    min_version: 2024.6.0
+
+  input:
+    remote:
+      name: Aqara Mini Switch T1
+      description: Kies de via Zigbee2MQTT gekoppelde Aqara-knop.
+      selector:
+        device:
+          integration: mqtt
+          manufacturer: Aqara
+          model: Wireless mini switch T1
+
+    single_press:
+      name: Eenmaal klikken
+      description: Actie bij één korte klik.
+      default: []
+      selector:
+        action: {}
+
+    double_press:
+      name: Dubbelklikken
+      description: Actie bij twee korte klikken.
+      default: []
+      selector:
+        action: {}
+
+    triple_press:
+      name: Driemaal klikken
+      description: Actie bij drie korte klikken.
+      default: []
+      selector:
+        action: {}
+
+    quadruple_press:
+      name: Viermaal klikken
+      description: Actie bij vier korte klikken.
+      default: []
+      selector:
+        action: {}
+
+    quintuple_press:
+      name: Vijfmaal klikken
+      description: Actie bij vijf korte klikken.
+      default: []
+      selector:
+        action: {}
+
+    hold:
+      name: Ingedrukt houden
+      description: Actie zodra de knop lang wordt ingedrukt.
+      default: []
+      selector:
+        action: {}
+
+    release:
+      name: Loslaten
+      description: Actie bij loslaten na lang indrukken.
+      default: []
+      selector:
+        action: {}
+
+    many_press:
+      name: Zesmaal of vaker klikken
+      description: Actie wanneer Zigbee2MQTT de actie 'many' ontvangt.
+      default: []
+      selector:
+        action: {}
+
+mode: parallel
+max: 10
+max_exceeded: silent
+
+triggers:
+  - trigger: device
+    domain: mqtt
+    device_id: !input remote
+    type: action
+    subtype: single
+    id: single
+
+  - trigger: device
+    domain: mqtt
+    device_id: !input remote
+    type: action
+    subtype: double
+    id: double
+
+  - trigger: device
+    domain: mqtt
+    device_id: !input remote
+    type: action
+    subtype: triple
+    id: triple
+
+  - trigger: device
+    domain: mqtt
+    device_id: !input remote
+    type: action
+    subtype: quadruple
+    id: quadruple
+
+  - trigger: device
+    domain: mqtt
+    device_id: !input remote
+    type: action
+    subtype: quintuple
+    id: quintuple
+
+  - trigger: device
+    domain: mqtt
+    device_id: !input remote
+    type: action
+    subtype: hold
+    id: hold
+
+  - trigger: device
+    domain: mqtt
+    device_id: !input remote
+    type: action
+    subtype: release
+    id: release
+
+  - trigger: device
+    domain: mqtt
+    device_id: !input remote
+    type: action
+    subtype: many
+    id: many
+
+actions:
+  - choose:
+      - conditions: "{{ trigger.id == 'single' }}"
+        sequence: !input single_press
+
+      - conditions: "{{ trigger.id == 'double' }}"
+        sequence: !input double_press
+
+      - conditions: "{{ trigger.id == 'triple' }}"
+        sequence: !input triple_press
+
+      - conditions: "{{ trigger.id == 'quadruple' }}"
+        sequence: !input quadruple_press
+
+      - conditions: "{{ trigger.id == 'quintuple' }}"
+        sequence: !input quintuple_press
+
+      - conditions: "{{ trigger.id == 'hold' }}"
+        sequence: !input hold
+
+      - conditions: "{{ trigger.id == 'release' }}"
+        sequence: !input release
+
+      - conditions: "{{ trigger.id == 'many' }}"
+        sequence: !input many_press
