@@ -1,0 +1,324 @@
+# Version 1.0.0. Upload this file to your own public GitHub repository.
+# After upload, optionally add blueprint.source_url with its real GitHub URL.
+blueprint:
+  name: IKEA Matter - BILRESA, MYGGSPRAY en MYGGBETT
+  description: >-
+    Kies één IKEA Matter-apparaat. Het model en de bijbehorende entiteiten
+    worden automatisch ontdekt. Ondersteunt BILRESA scroll wheel (9 posities),
+    BILRESA dual button (2 posities), MYGGSPRAY wrlss mtn sensor en MYGGBETT
+    door/window sensor. BILRESA gebruikt uitsluitend Huidige schakelaarpositie
+    (sensor: 0 naar 1), nooit event-entiteiten. Schakel deze diagnostische
+    sensoren eerst zelf in bij het apparaat. Automatische positieherkenning
+    ondersteunt Nederlandse/Engelse namen of entity-id's; gebruik bij afwijkende
+    namen de geavanceerde lijst. Vul alleen de gewenste acties in.
+    Geen onderscheid tussen kort/lang/dubbel drukken: elke stijgende puls is één actie.
+  domain: automation
+  author: Arjan
+  homeassistant:
+    min_version: "2026.11.0"
+  input:
+    remote:
+      name: IKEA Matter-apparaat
+      selector:
+        device:
+          filter:
+            - integration: matter
+              manufacturer: IKEA of Sweden
+    form_profile:
+      name: Formulierweergave
+      description: >-
+        Automatisch werkt met alleen de apparaatkeuze, maar toont alle actiegroepen.
+        Kies optioneel het model om alleen de bijbehorende invoervelden te zien.
+        Een keuze die niet bij het echte apparaat past blokkeert uitvoering.
+      default: auto
+      selector:
+        select:
+          options:
+            - label: Automatisch (alle actiegroepen zichtbaar)
+              value: auto
+            - label: BILRESA scroll wheel
+              value: scroll
+            - label: BILRESA dual button
+              value: dual
+            - label: MYGGSPRAY bewegingssensor
+              value: motion
+            - label: MYGGBETT deur-/raamsensor
+              value: contact
+    scroll_group_1:
+      name: Scrollwiel - groep 1
+      visible: {field: form_profile, operator: in, value: [auto, scroll]}
+      input:
+        group_1_clockwise:
+          name: Rechtsom (positie 1)
+          default: []
+          selector: {action: {}}
+        group_1_counterclockwise:
+          name: Linksom (positie 2)
+          default: []
+          selector: {action: {}}
+        group_1_press:
+          name: Drukken (positie 3)
+          default: []
+          selector: {action: {}}
+    scroll_group_2:
+      name: Scrollwiel - groep 2
+      visible: {field: form_profile, operator: in, value: [auto, scroll]}
+      input:
+        group_2_clockwise:
+          name: Rechtsom (positie 4)
+          default: []
+          selector: {action: {}}
+        group_2_counterclockwise:
+          name: Linksom (positie 5)
+          default: []
+          selector: {action: {}}
+        group_2_press:
+          name: Drukken (positie 6)
+          default: []
+          selector: {action: {}}
+    scroll_group_3:
+      name: Scrollwiel - groep 3
+      visible: {field: form_profile, operator: in, value: [auto, scroll]}
+      input:
+        group_3_clockwise:
+          name: Rechtsom (positie 7)
+          default: []
+          selector: {action: {}}
+        group_3_counterclockwise:
+          name: Linksom (positie 8)
+          default: []
+          selector: {action: {}}
+        group_3_press:
+          name: Drukken (positie 9)
+          default: []
+          selector: {action: {}}
+    dual_actions:
+      name: BILRESA dual button
+      visible: {field: form_profile, operator: in, value: [auto, dual]}
+      input:
+        button_1_press:
+          name: Knop 1 ingedrukt (positie 1)
+          default: []
+          selector: {action: {}}
+        button_2_press:
+          name: Knop 2 ingedrukt (positie 2)
+          default: []
+          selector: {action: {}}
+    motion_actions:
+      name: MYGGSPRAY
+      visible: {field: form_profile, operator: in, value: [auto, motion]}
+      input:
+        motion_on:
+          name: Beweging/bezetting gedetecteerd
+          default: []
+          selector: {action: {}}
+        motion_off:
+          name: Beweging/bezetting vrijgegeven door de sensor
+          description: Direct bij de off-melding van het apparaat, zonder extra wachttijd.
+          default: []
+          selector: {action: {}}
+    contact_actions:
+      name: MYGGBETT
+      visible: {field: form_profile, operator: in, value: [auto, contact]}
+      input:
+        contact_open:
+          name: Deur/raam geopend
+          default: []
+          selector: {action: {}}
+        contact_closed:
+          name: Deur/raam gesloten
+          default: []
+          selector: {action: {}}
+    discovery:
+      name: Geavanceerd - afwijkende entiteitsnamen
+      collapsed: true
+      description: >-
+        Laat leeg voor automatische ontdekking. Alle geselecteerde entiteiten
+        moeten bij het gekozen Matter-apparaat horen en ingeschakeld zijn.
+      input:
+        position_entities:
+          name: BILRESA-posities in endpointvolgorde
+          description: >-
+            Alleen bij afwijkende namen: kies exact 9 (scroll) of 2 (dual)
+            positiesensoren in volgorde 1, 2, 3, ... . De lijstvolgorde is de
+            endpointmapping. Geen batterij- of event-entiteiten selecteren.
+          default: []
+          visible: {field: form_profile, operator: in, value: [auto, scroll, dual]}
+          selector:
+            entity:
+              multiple: true
+              filter: {integration: matter, domain: sensor}
+        binary_entities:
+          name: MYGGSPRAY-/MYGGBETT-sensor
+          description: Alleen bij dubbelzinnige ontdekking; kies exact één bezettings-, bewegings-, deur- of raamsensor.
+          default: []
+          visible: {field: form_profile, operator: in, value: [auto, motion, contact]}
+          selector:
+            entity:
+              multiple: true
+              filter:
+                integration: matter
+                domain: binary_sensor
+                device_class: [occupancy, motion, door, window, opening]
+
+# A normal state trigger cannot use a runtime-discovered entity list.
+# Only state_changed is consumed; event.* remote entities are explicitly excluded.
+triggers:
+  - trigger: event
+    event_type: state_changed
+
+variables:
+  remote: !input remote
+  form_profile: !input form_profile
+  position_override: !input position_entities
+  binary_override: !input binary_entities
+
+# Filter before queue admission and before discovery. Use event snapshots:
+# the physical sensor can already be back at 0 by the time an action runs.
+conditions:
+  - condition: template
+    value_template: >-
+      {% if trigger is not defined or trigger.event is not defined %}
+        {{ false }}
+      {% else %}
+        {% set data = trigger.event.data %}
+        {% set old = data.get('old_state') %}
+        {% set new = data.get('new_state') %}
+        {% set entity = data.get('entity_id', '') %}
+        {{ old is not none and new is not none
+           and entity.split('.')[0] in ['sensor', 'binary_sensor']
+           and ((old.state == '0' and new.state == '1')
+                or (old.state == 'off' and new.state == 'on')
+                or (old.state == 'on' and new.state == 'off'))
+           and device_id(entity) == remote }}
+      {% endif %}
+
+actions:
+  - variables:
+      actual_profile: >-
+        {% set models = {'BILRESA scroll wheel': 'scroll',
+                         'BILRESA dual button': 'dual',
+                         'MYGGSPRAY wrlss mtn sensor': 'motion',
+                         'MYGGBETT door/window sensor': 'contact'} %}
+        {{ models.get(device_attr(remote, 'model'), 'unsupported')
+           if device_attr(remote, 'manufacturer') == 'IKEA of Sweden'
+           else 'unsupported' }}
+      entity: "{{ trigger.event.data.entity_id }}"
+      device_entity_ids: >-
+        {{ device_entities(remote) | select('in', integration_entities('matter')) | list }}
+  - choose:
+      - conditions: "{{ actual_profile == 'unsupported' or form_profile not in ['auto', actual_profile] }}"
+        sequence:
+          - stop: >-
+              Onbekend IKEA Matter-model of verkeerde formulierweergave.
+              Kies een ondersteund apparaat en Automatisch of het juiste model.
+            error: true
+  - variables:
+      expected_positions: "{{ 9 if actual_profile == 'scroll' else 2 if actual_profile == 'dual' else 0 }}"
+      position_ids: >-
+        {% if position_override | count > 0 %}
+          {{ position_override }}
+        {% else %}
+          {% set ns = namespace(result=[]) %}
+          {% for n in range(1, expected_positions + 1) %}
+            {% set found = namespace(ids=[]) %}
+            {% for candidate in device_entity_ids if candidate.startswith('sensor.') %}
+              {% set name = entity_name(candidate) or '' %}
+              {% set name_numbers = name | regex_findall('(?i)(?:huidige schakelaarpositie|current switch position)[ ]*[(]([1-9])[)]$') %}
+              {% set id_numbers = candidate | regex_findall('(?:huidige_schakelaarpositie|current_switch_position)_([1-9])$') %}
+              {% set numbers = name_numbers if name_numbers | count > 0 else id_numbers %}
+              {% if numbers == [n | string] %}
+                {% set found.ids = found.ids + [candidate] %}
+              {% endif %}
+            {% endfor %}
+            {% set ns.result = ns.result + [found.ids[0] if found.ids | count == 1 else ''] %}
+          {% endfor %}
+          {{ ns.result }}
+        {% endif %}
+      binary_ids: >-
+        {% if binary_override | count > 0 %}
+          {{ binary_override }}
+        {% else %}
+          {% set ns = namespace(ids=[]) %}
+          {% set classes = ['occupancy', 'motion'] if actual_profile == 'motion'
+                           else ['door', 'window', 'opening'] if actual_profile == 'contact' else [] %}
+          {% for candidate in device_entity_ids if candidate.startswith('binary_sensor.') %}
+            {% if state_attr(candidate, 'device_class') in classes %}
+              {% set ns.ids = ns.ids + [candidate] %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.ids }}
+        {% endif %}
+      mapping_valid: >-
+        {% if actual_profile in ['scroll', 'dual'] %}
+          {{ position_ids | count == expected_positions
+             and position_ids | unique | list | count == expected_positions
+             and position_ids | select('in', device_entity_ids) | list | count == expected_positions
+             and position_ids | select('match', '^sensor[.]') | list | count == expected_positions }}
+        {% else %}
+          {% set classes = ['occupancy', 'motion'] if actual_profile == 'motion' else ['door', 'window', 'opening'] %}
+          {{ binary_ids | count == 1 and binary_ids[0] in device_entity_ids
+             and binary_ids[0].startswith('binary_sensor.')
+             and state_attr(binary_ids[0], 'device_class') in classes }}
+        {% endif %}
+  - choose:
+      - conditions: "{{ not mapping_valid }}"
+        sequence:
+          - stop: >-
+              Entiteitsontdekking ontbreekt of is dubbelzinnig. Schakel de benodigde
+              positiesensoren in en controleer de geavanceerde lijst.
+              Model={{ actual_profile }}, posities={{ position_ids }}, binair={{ binary_ids }}.
+            error: true
+  - variables:
+      route: >-
+        {% set old_value = trigger.event.data.old_state.state %}
+        {% set new_value = trigger.event.data.new_state.state %}
+        {% if actual_profile in ['scroll', 'dual'] and entity in position_ids
+              and old_value == '0' and new_value == '1' %}
+          {% set routes = ['group_1_clockwise', 'group_1_counterclockwise', 'group_1_press',
+                           'group_2_clockwise', 'group_2_counterclockwise', 'group_2_press',
+                           'group_3_clockwise', 'group_3_counterclockwise', 'group_3_press']
+                          if actual_profile == 'scroll' else ['button_1_press', 'button_2_press'] %}
+          {{ routes[position_ids.index(entity)] }}
+        {% elif actual_profile in ['motion', 'contact'] and entity in binary_ids
+                and old_value in ['on', 'off'] and new_value in ['on', 'off'] and old_value != new_value %}
+          {{ ('motion_on' if new_value == 'on' else 'motion_off') if actual_profile == 'motion'
+             else ('contact_open' if new_value == 'on' else 'contact_closed') }}
+        {% else %}
+          {{ '' }}
+        {% endif %}
+  - choose:
+      - conditions: "{{ route == 'group_1_clockwise' }}"
+        sequence: !input group_1_clockwise
+      - conditions: "{{ route == 'group_1_counterclockwise' }}"
+        sequence: !input group_1_counterclockwise
+      - conditions: "{{ route == 'group_1_press' }}"
+        sequence: !input group_1_press
+      - conditions: "{{ route == 'group_2_clockwise' }}"
+        sequence: !input group_2_clockwise
+      - conditions: "{{ route == 'group_2_counterclockwise' }}"
+        sequence: !input group_2_counterclockwise
+      - conditions: "{{ route == 'group_2_press' }}"
+        sequence: !input group_2_press
+      - conditions: "{{ route == 'group_3_clockwise' }}"
+        sequence: !input group_3_clockwise
+      - conditions: "{{ route == 'group_3_counterclockwise' }}"
+        sequence: !input group_3_counterclockwise
+      - conditions: "{{ route == 'group_3_press' }}"
+        sequence: !input group_3_press
+      - conditions: "{{ route == 'button_1_press' }}"
+        sequence: !input button_1_press
+      - conditions: "{{ route == 'button_2_press' }}"
+        sequence: !input button_2_press
+      - conditions: "{{ route == 'motion_on' }}"
+        sequence: !input motion_on
+      - conditions: "{{ route == 'motion_off' }}"
+        sequence: !input motion_off
+      - conditions: "{{ route == 'contact_open' }}"
+        sequence: !input contact_open
+      - conditions: "{{ route == 'contact_closed' }}"
+        sequence: !input contact_closed
+
+mode: queued
+max: 100
+max_exceeded: warning
